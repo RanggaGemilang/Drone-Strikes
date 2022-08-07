@@ -1,17 +1,13 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(echarts4r)
+library(countrycode)
+# Header
 
 header <- dashboardHeader(
-  title = "Drone Strikes"
+  title = "U.S Drone Strikes"
 )
+
+# Sidedbar
 
 sidebar <- dashboardSidebar(
   collapsed = F,
@@ -19,12 +15,17 @@ sidebar <- dashboardSidebar(
     menuItem(
       text = "Overview",
       tabName = "Overview",
-      icon = icon("plane")
+      icon = icon("magnifying-glass")
     ),
     menuItem(
       text = "Casualties",
       tabName = "Casualties",
-      icon = icon("person")
+      icon = icon("arrows-down-to-people")
+    ),
+    menuItem(
+      text = "Location",
+      tabName = "Location",
+      icon = icon("location-crosshairs")
     ),
     menuItem(
       text = "Data",
@@ -33,13 +34,15 @@ sidebar <- dashboardSidebar(
     ),
     menuItem(
       text = "Source", 
-      icon = icon("file-code-o"),
+      icon = icon("code"),
       href = "https://github.com/RanggaGemilang/Drone-Strikes"
     )))
 
+# Body
+
 body <- dashboardBody(
   
-  # using custom CSS (disable dashboard skins)
+  # using custom CSS 
 
   tags$head(tags$style(HTML('
                                  /* logo */
@@ -52,8 +55,13 @@ body <- dashboardBody(
   
                                  /* logo when hovered */
                                  .skin-blue .main-header .logo:hover {
-                                 background-color: #E3D4CD;
-                                 color: black;
+                                 background-image: url("usa.png") !important;
+                                 background-size: cover !important;
+                                 border-bottom-color:#E8E1DB;
+                                 border-left-color:#E8E1DB;
+                                 border-right-color:#E8E1DB;
+                                 border-top-color:#E8E1DB;
+                                 color: white;
                                  font-family: "Georgia";
                                  font-style: bold;
                                  }
@@ -71,8 +79,11 @@ body <- dashboardBody(
   
                                  /* active selected tab in the sidebarmenu */
                                  .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
-                                 background-color: #E8E1DB;
-                                 color: black;
+                                 background-image: url("usa2.png") !important;
+                                 background-size: cover !important;
+                                 background-color: black;
+                                 border-left-color:black;
+                                 color: white;
                                  font-family: "Georgia";
                                  font-style: italic;
                                  }
@@ -80,6 +91,7 @@ body <- dashboardBody(
                                  /* other links in the sidebarmenu */
                                  .skin-blue .main-sidebar .sidebar .sidebar-menu a{
                                  background-color: #E8E1DB;
+                                 border-left-color:#E8E1DB;
                                  color: black;
                                  font-family: "Georgia";
                                  font-style: italic;
@@ -88,6 +100,7 @@ body <- dashboardBody(
                                  /* other links in the sidebarmenu when hovered */
                                  .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
                                  background-color: black;
+                                 border-left-color:black;
                                  color: white;
                                  font-family: "Georgia";
                                  font-style: italic;
@@ -95,6 +108,7 @@ body <- dashboardBody(
                                  /* toggle button when hovered  */
                                  .skin-blue .main-header .navbar .sidebar-toggle:hover{
                                  background-color: black;
+                                 border-left-color:#E8E1DB;
                                  }
   
                                  /* body */
@@ -113,36 +127,90 @@ body <- dashboardBody(
                                  border-left-color:#E8E1DB;
                                  border-right-color:#E8E1DB;
                                  border-top-color:#E8E1DB;
-                                 background:#E8E1DB
+                                 background:#E8E1DB;
+                                 box-shadow: none;
+                                 }
+                                 
+                                 .box.box-solid.box-danger{
+                                 background-image: url("president.png") !important;
+                                 background-size: cover !important;
+                                 border-bottom-color:#E8E1DB;
+                                 border-left-color:#E8E1DB;
+                                 border-right-color:#E8E1DB;
+                                 border-top-color:#E8E1DB;
+                                 color: white;
+                                 box-shadow: none;
+                                 }
+                                 
+                                 .box.box-solid.box-success{
+                                 background-image: url("mapper.png") !important;
+                                 background-size: cover !important;
+                                 border-bottom-color:#E8E1DB;
+                                 border-left-color:#E8E1DB;
+                                 border-right-color:#E8E1DB;
+                                 border-top-color:#E8E1DB;
+                                 color: #A6655F;
+                                 box-shadow: none;
                                  }
                                  
                                  .small-box.bg-navy { 
                                  background-image: url("bush.jpeg") !important;
-                                 background-size: 300px 210px !important;
-                                 background-attachment: fixed !important;
+                                 background-size: cover !important;
                                  color: white !important;
                                  
                                  }
                                  
                                  .small-box.bg-red { 
                                  background-image: url("obama.jpg") !important;
-                                 background-size: 300px 210px !important;
-                                 background-attachment: fixed !important;
+                                 background-size: cover !important;
                                  color: white !important; 
                                  
                                  }
                                  
                                  .small-box.bg-yellow { 
                                  background-image: url("trump.jpg") !important;
-                                 background-size: 300px 210px !important;
-                                 background-attachment: fixed !important;
+                                 background-size: cover !important;
                                  color: white !important; 
+                                 
+                                 }
+                                 
+                                 .small-box.bg-green { 
+                                 background-color: #A6655F !important;
+                                 color: white !important;
                                  
                                  }
                                  
                                  .small-box.bg-teal { 
                                  background-color: #A6655F !important;
                                  color: white !important; 
+                                 
+                                 }
+                                 
+                                 .nav-tabs {
+                                 background: #E8E1DB;
+                                 border-bottom-color:#E8E1DB;
+                                 border-left-color:#E8E1DB;
+                                 border-right-color:#E8E1DB;
+                                 border-top-color:#E8E1DB;
+                                 color: white;
+                                 }
+                                 
+                                 .nav-tabs-custom .nav-tabs li.active:hover a,.nav-tabs-custom .nav-tabs li.active a {
+                                 background-color: transparent;
+                                 border-color: transparent;
+                                 color: #A6655F;
+                                 
+                                 }
+                                 
+                                 .nav-tabs-custom .nav-tabs li.active {
+                                 background-color: white;
+                                 border-top-color: #A6655F;
+                                 border-bottom-color:white;
+                                 color:#A6655F}
+                                 
+                                 
+                                 .leaflet-container { 
+                                 background: black; 
                                  
                                  }
   
@@ -155,68 +223,123 @@ body <- dashboardBody(
     tabItem(
       tabName = "Overview",
       fluidRow(
-        fluidRow(column(12,align ="center",
-                        div(img(src="DroneBW.png", height=200, width=400))))),
+        fluidPage(
+          valueBox(tags$p(bush.strikes$Total, style = "font-size: 100%; color: #A6655F;"), 
+                   tags$p("Bush Reported Strikes", style = "font-size: 150%; color: white;"),
+                   color = "navy",
+                   width = 4),
+          valueBox(tags$p(comma(obama.strikes$Total), style = "font-size: 100%; color: #A6655F;"), 
+                   tags$p("Obama Reported Strikes", style = "font-size: 150%; color: white;"),
+                   color = "red",
+                   width = 4),
+          valueBox(tags$p(comma(trump.strikes$Total), style = "font-size: 100%; color: #A6655F;"), 
+                   tags$p("Trump Reported Strikes", style = "font-size: 150%; color: white;"),
+                   color = "yellow",
+                   width = 4),
+          valueBox(tags$p(paste(round(bush.rate,3)*100,"%"), style = "font-size: 100%; color: white;"), 
+                   tags$p("Civilian Casualties Rate", style = "font-size: 150%; color: white;"),
+                   color = "green",
+                   width = 4,
+                   icon = icon("skull-crossbones")),
+          valueBox(tags$p(paste(round(obama.rate,3)*100,"%"), style = "font-size: 100%; color: white;"), 
+                   tags$p("Civilian Casualties Rate", style = "font-size: 150%; color: white;"),
+                   color = "green",
+                   width = 4,
+                   icon = icon("skull-crossbones")),
+          valueBox(tags$p(paste(round(trump.rate,3)*100,"%"), style = "font-size: 100%; color: white;"), 
+                   tags$p("Civilian Casualties Rate", style = "font-size: 150%; color: white;"),
+                   color = "green",
+                   width = 4,
+                   icon = icon("skull-crossbones"))
+        )
+        ),
       fluidPage(
         div(style = "text-align:justify", 
-            p("Among the evolving challenges to global peace and security are 
-              the growing incidents of terrorism in Middle East.",
-              "With cases in Afghanistan, Pakistan, Yemen, Somalia and among others, 
-              the continent is fast earning a moniker as a major frontier in the US-led Global War on Terrorism.",
-              "A key counterterrorism measure in this regard has been the controversial reliance on Drones.",
+            p("Among the evolving challenges to global peace and security are the growing incidents of terrorism in Middle East.", 
+              "Even after 9/11 incident, the continent is becoming the major frontier of U.S-led counterterrorism campaign.",
+              "Amidst of those campaigns, there was a new key pattern built by U.S military to combat those conflicts.",
+              "A key of measure in this regard has been the reliance on 'Drones' or in military terms, an 'Unmanned Aerial Vehices' (UAV)."
               ),
-            p("Drones generally fall into two categories: those that are used for reconnaissance and surveillance purposes, 
-            and those that are armed with weapons for military purposes.",
-              "The use of drones has grown enormously in recent years, in part, 
-              because unlike manned aircraft they can fly long missions, are less costly, and have no (immediate) military casualties."
+            p("Drones generally fall into two categories: those that are used for 'reconnaissance and surveillance purposes' (which is their initial purpose), 
+              and those that are 'armed with weapons for military purposes'. 
+              The new pattern has grown enormously in the Middle East campaign, because, 
+              unlike manned aircraft they can fly long missions, are less costly, and have no (immediate) military casualties.
+              "
               ),
-            p("There are a number of debates surrounding the use of drones, the most contentious of which have been as to whether 
-              governments have legal authorization to do so, and of how combatant status is defined under current international law.",
-              "The most salient issue today regarding the deployment of drones has always been the 'culture of secrecy', which doesn't cover up
-              any collateral damage that has been inflicted by such unmanned strikes."
-              )
+            p("With the ascension of Drone usage in the act of counterterrorism, there also rising number of debates surrounding its operation.
+              When it became known that U.S used Drones for targetted killings even outside of the 'official warzones', 
+              the body literature on Drone campaign quickly began to grow exponentially. Since the characteristic of Drone operation are heavy
+              on 'immediate action', this has resulted in less restrained act of warfare. Questions about legality, accountability and most importantly, 
+              transparency, become the center of everything related to Drone issue."
+              ),
+            p("In this Data Visualization Project, I want to show you what kind of transparency that we have along with its discrepancies. Here are the examples:")
         )
       ),
       br(),
+      fluidRow(
+        box(width = 6,
+            status = "primary", 
+            solidHeader = TRUE,
+            echarts4rOutput(outputId = "totalstrikes")
+        ),
+        box(
+          width = 6,
+          status = "primary", 
+          solidHeader = TRUE,
+          echarts4rOutput(outputId = "confirmedstrikes")
+        )
+      ),
       fluidPage(
-        valueBox(tags$p(bush.strikes$Total, style = "font-size: 100%; color: #873047;"), 
-                 tags$p("Bush Reported Strikes", style = "font-size: 150%; color: white;"),
-                 color = "navy",
-                 width = 4),
-        valueBox(tags$p(comma(obama.strikes$Total), style = "font-size: 100%; color: #873047;"), 
-                 tags$p("Obama Reported Strikes", style = "font-size: 150%; color: white;"),
-                 color = "red",
-                 width = 4),
-        valueBox(tags$p(comma(trump.strikes$Total), style = "font-size: 100%; color: #873047;"), 
-                 tags$p("Trump Reported Strikes", style = "font-size: 150%; color: white;"),
-                 color = "yellow",
-                 width = 4)
-      )
+        div(style = "text-align:justify", 
+            p("You might see some
+              inconsistencies within the presented report and the dataset, this because the Data itself is not completely 'official'. It was also collected
+              by a team of Bureau journalist from news reports, statements, documents, press releases, and local leaders with some integration to the released official data from
+              the U.S Air Force. Please be noted that, the official 'Drones Casualties Estimates Report' was first initiated in 2016 by Obama's director of national intelligence 
+              while the first drone strike reported by press (based on our dataset) was in Yemen from 2002."
+            ),
+            p(
+              "This might be the solely reason why there are very few reports within Bush Era of Presidency along with the non-existent U.S Confirmed Strikes in Pakistan,
+              thus I hope that these visualizations and analysis could help us to bring more transparency to light."
+            ))
+        ),
+      fluidRow(
+        fluidRow(column(12,align ="center",
+                        div(img(src="Drone.png", height=200, width=400)))))
       ),
     
     # TAB 2
     tabItem(
       tabName = "Casualties",
       fluidPage(
-        box(width = 3,
-            status = "primary", 
+        box(width = 6,
+            height = 150,
+            status = "success", 
             solidHeader = TRUE,
             align = "center",
             selectInput(inputId = "Country",
-                        label = h4(tags$b("Select Country:")),
+                        label = h4(tags$b(" ")),
                         choices = unique(drone$Country))
-          
-        ),
-        valueBoxOutput(width = 3,
-                       "Strikebox"),
-        valueBoxOutput(width = 3,
-                       "Deathbox"),
-        valueBoxOutput(width = 3,
-                       "Deathbox1"),
+            ),
+        box(width = 6,
+            height = 150,
+            status = "danger", 
+            solidHeader = TRUE,
+            align = "center",
+            checkboxGroupInput(inputId = "Era",
+                               label = h4(tags$b(" ")),
+                               choices = unique(drone$Presidency),
+                               selected = levels(drone$Presidency))
+                               ),
         box(width = 12,
             status = "primary", 
             solidHeader = TRUE,
-            plotlyOutput(outputId = "plotly_1")),
+            echarts4rOutput(outputId = "plot_1")),
+        valueBoxOutput(width = 4,
+                       "Strikebox"),
+        valueBoxOutput(width = 4,
+                       "Deathbox"),
+        valueBoxOutput(width = 4,
+                       "Deathbox1"),
         box(width = 7,
             status = "primary", 
             solidHeader = TRUE,
@@ -230,14 +353,52 @@ body <- dashboardBody(
     
     # TAB 3
     tabItem(
+      tabName = "Location",
+      fluidPage(
+        div(style = "text-align:center", 
+            p("This map is based on Strikes Intensity between each Country"))
+            ),
+      fluidPage(
+        tabBox(width = 12,
+               title = tags$b(" "),
+               id = "tabset1",
+               side = "left",
+               tabPanel(tags$b("Afghanistan"), 
+                        leafletOutput("leaflet_a")
+               ),
+               tabPanel(tags$b("Pakistan"), 
+                        leafletOutput("leaflet_p")
+               ),
+               tabPanel(tags$b("Somalia"), 
+                        leafletOutput("leaflet_s")
+               ),
+               tabPanel(tags$b("Yemen"), 
+                        leafletOutput("leaflet_y")
+               )
+        )
+      )),
+    
+    # TAB 4
+    tabItem(
       tabName = "Data",
       h2(tags$b("The Dataset"),align = "center",
          style = 'font-family: "Georgia"; font-style: italic;'),
+      fluidPage(
+        div(style = "text-align:justify", 
+            p("The original dataset consists of 4 different datasets from each Country available,",
+              "and the dataset shown below is the one that already been tidied up into 1 dataset for easier read and Pre-processing.",
+              "For the original dataset and tidying up process can be seen in the 'Source' page."
+            ),
+        )
+      ),
       DT::dataTableOutput("data1")
     )
     )
   )
 
+#Assembly
+
+ui <- 
 dashboardPage(
   header = header,
   body = body,

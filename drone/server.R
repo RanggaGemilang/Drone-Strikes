@@ -1,12 +1,62 @@
 server <- function(input, output) {
-  output$plotly_1 <- renderPlotly({
-    strike.plot <- 
+  
+  # Subsetting for CheckGroupInput
+  EraSubset <-reactive({
+    if (is.null(input$Era) == TRUE) {
+      return(drone)
+    } else {
+      return(filter(drone, Presidency %in% input$Era))
+    }
+  })
+  
+  # Total Strikes Pie
+  output$totalstrikes <- renderEcharts4r({
+    e_common(font_family = "georgia")
+    
+    strikes.pie <- 
       drone %>% 
+      select(Country,`Maximum Strikes`) %>% 
+      group_by(Country) %>% 
+      summarize(Strikes = sum(`Maximum Strikes`)) %>% 
+      e_charts(x = Country) %>% 
+      e_pie(Strikes, legend = FALSE) %>% 
+      e_tooltip() %>% 
+      e_title("Total Strikes Reported", "in Each Country") %>% 
+      e_theme_custom("www/rg_theme.json")
+    
+    strikes.pie
+  })
+  
+  # Total Confirmed Strikes
+  
+  output$confirmedstrikes <- renderEcharts4r({
+    e_common(font_family = "georgia")
+    
+    confirmed.pie <- 
+      drone %>% 
+      filter(`US Confirmed` %in% "Confirmed") %>% 
+      select(Country,`Maximum Strikes`) %>% 
+      group_by(Country) %>% 
+      summarize(Strikes = sum(`Maximum Strikes`)) %>%  
+      e_charts(x = Country) %>% 
+      e_pie(Strikes, legend = FALSE, name = "Strikes") %>% 
+      e_tooltip() %>% 
+      e_title("Strikes Confirmed by U.S", "in Each Country") %>% 
+      e_theme_custom("www/rg_theme.json")
+    
+    confirmed.pie
+  })
+  
+  # Strikes Timeline Plot
+  
+  output$plot_1 <- renderEcharts4r({
+    line_data <- 
+      EraSubset() %>% 
       filter(Country == input$Country) %>% 
-      select(Date,`Maximum Strikes`) %>% 
+      select(Country, Date,`Maximum Strikes`) %>% 
       mutate(Date = floor_date(Date, "quarter")) %>% 
-      group_by(Date) %>% 
-      summarise(Strikes = sum(`Maximum Strikes`)) %>%
+      group_by(Date, Country) %>% 
+      summarise(Strikes = sum(`Maximum Strikes`),.groups = 'drop') %>%
       mutate(Quart = case_when(
         month(Date) == "1" ~ "Q1",
         month(Date) == "4" ~ "Q2",
@@ -14,29 +64,37 @@ server <- function(input, output) {
         month(Date) == "10" ~ "Q4"
       )) %>% 
       mutate(Quart = paste(year(Date), Quart),
-             Label = glue("{Quart}
-                        Strikes: {comma(Strikes)}"),
-             Date = as.Date(Date, format = "%d-%m-%Y")) %>%  
-      ggplot(aes(Date, Strikes, text = Label)) +
-      geom_line(aes(group=1),color = "#5A5981", size = 1) +
-      geom_point(col = "#A6655F", size = 2, alpha = 0.5) +
-      scale_x_date(breaks = "3 months", date_labels = "%b %Y") +
-      labs(title = "Total Strikes by Quartal",
-           x = NULL,
-           y = NULL) +
-      theme(plot.background = element_rect(fill = "#E8E1DB", color = "#E8E1DB"),
-            panel.background = element_rect(fill = "#E8E1DB"),
-            panel.grid = element_line(alpha(colour = "#C3C3C3",alpha = 0.4)),
-            axis.text.x = element_text(angle = 45, hjust = 5, color = "Black", face = "italic", family = "Georgia"),
-            axis.text.y = element_text(face = "bold", family = "Georgia"),
-            plot.title = element_text(face = "bold", family = "Georgia"))
+             Date = as.Date(Date, format = "%d-%m-%Y"))
     
-    ggplotly(strike.plot, tooltip = "text")
+    style <- list(
+      itemStyle = list(
+        color = "#A6655F",
+        opacity = 0.4
+      )
+    )
+    
+    line_base <- line_data %>% 
+      group_by(Country) %>% 
+      e_charts(x = Quart) %>% 
+      e_datazoom(
+        type = "slider", 
+        toolbox = FALSE
+      ) %>% 
+      e_tooltip() %>% 
+      e_title("Strikes Timeline per Quartal") %>% 
+      e_x_axis(Quart, axisPointer = list(show = TRUE)) %>% 
+      e_theme_custom("www/rg_theme.json")
+    
+    line_plot <- line_base %>% 
+      e_line(serie=Strikes, name = "Strikes", legend = FALSE, emphasis=style)
+    line_plot
   })
+  
+  # Death Plot
   
   output$plotly_2 <- renderPlotly({
     death.plot <- 
-      drone %>% 
+      EraSubset() %>% 
       filter(Country == input$Country) %>% 
       select(`Minimum Total Killed`, `Maximum Total Killed`, `Minimum Civilians Killed`, `Maximum Civilians Killed`, 
              `Minimum Children Killed`, `Maximum Children Killed`) %>% 
@@ -61,7 +119,7 @@ server <- function(input, output) {
                position = "stack", width = 0.7) +
       scale_fill_manual(values = alpha(c("#A6655F", "#F5DB9E"),0.9)) +
       scale_x_continuous(breaks = seq(0,14000,2000)) +
-      labs(title = "Deaths",
+      labs(title = "Death",
            x = NULL,
            y = NULL,
            fill = NULL) +
@@ -82,9 +140,11 @@ server <- function(input, output) {
     ggplotly(death.plot, tooltip = "text")
   })
   
+  # Injured Plot
+  
   output$plotly_3 <- renderPlotly({
     injured.plot <- 
-      drone %>% 
+      EraSubset() %>% 
       filter(Country == input$Country) %>% 
       select(`Minimum Injured`, `Maximum Injured`) %>% 
       rename(Minimum = "Minimum Injured",
@@ -103,12 +163,7 @@ server <- function(input, output) {
            x = NULL,
            y = NULL,
            fill = NULL) +
-      theme(legend.position = "right",
-            legend.direction = "vertical",
-            legend.background = element_rect(fill="#E8E1DB", color = "#E8E1DB"),
-            legend.key = element_rect(fill="#E8E1DB", color = "#E8E1DB"),
-            legend.title = element_text(colour = "Black", face ="bold", size = 9, family = "Georgia"),
-            legend.text = element_text(color="Black", face ="italic", family = "Georgia"),
+      theme(legend.position = "none",
             plot.background = element_rect(fill = "#E8E1DB", color = "#E8E1DB"),
             panel.background = element_rect(fill = "#E8E1DB"),
             panel.grid = element_line(alpha(colour = "#C3C3C3",alpha = 0.4)),
@@ -120,46 +175,161 @@ server <- function(input, output) {
     ggplotly(injured.plot, tooltip = "text")
   })
   
+  # Total Strike Info Box
+  
   output$Strikebox <- renderValueBox({
     
-    total.strike <- drone %>% 
+    total.strike <- EraSubset() %>% 
       filter(Country == input$Country) %>% 
-      select(`Maximum Strikes`) %>% 
-      summarize(`Strikes Reported` = sum(`Maximum Strikes`))
+      select(`Maximum Strikes`,`Minimum Strikes`) %>% 
+      summarize(`Strikes Reported` = sum(`Maximum Strikes`),
+                `Minimum Strikes` = sum(`Minimum Strikes`))
     
-    valueBox(tags$p(comma(total.strike$`Strikes Reported`), style = "font-size: 100%; color: white;"),
+    valueBox(tags$p(paste(comma(total.strike$`Minimum Strikes`),"-",comma(total.strike$`Strikes Reported`)), 
+                    style = "font-size: 100%; color: white;"),
              subtitle = "Total Strikes",
              color = "teal", 
-             icon = icon("rocket"))
+             icon = icon("explosion"))
   })
+  
+  # Innocent Death Info Box
   
   output$Deathbox <- renderValueBox({
     
-    inno.death <- drone %>% 
+    inno.death <- EraSubset() %>% 
       filter(Country == input$Country) %>% 
-      select(`Maximum Civilians Killed`,`Maximum Children Killed`) %>% 
-      summarize(Civilians = sum(`Maximum Civilians Killed`),
-                Children = sum(`Maximum Civilians Killed`)) %>% 
-      mutate(`Deaths Reported` = Civilians + Children)
+      select(`Maximum Civilians Killed`,`Maximum Children Killed`,`Minimum Civilians Killed`,`Minimum Children Killed`) %>% 
+      summarize(maxCivilians = sum(`Maximum Civilians Killed`),
+                maxChildren = sum(`Maximum Civilians Killed`),
+                minCivilians = sum(`Minimum Civilians Killed`),
+                minChildren = sum(`Minimum Children Killed`)) %>% 
+      mutate(DeathMax = maxCivilians + maxChildren,
+             DeathMin = minCivilians + minChildren)
     
-    valueBox(tags$p(comma(inno.death$`Deaths Reported`), style = "font-size: 100%; color: white;"),
-             subtitle = "Innocent Death",
+    valueBox(tags$p(paste(comma(inno.death$DeathMin),"-",comma(inno.death$DeathMax)), 
+                    style = "font-size: 100%; color: white;"),
+             subtitle = "Civilians Death",
              color = "teal", 
-             icon = icon("skull"))
+             icon = icon("person-falling-burst"))
   })
+  
+  # Total Death Info Box
   
   output$Deathbox1 <- renderValueBox({
     
-    total.death <- drone %>% 
+    total.death <- EraSubset() %>% 
       filter(Country == input$Country) %>% 
-      select(`Maximum Total Killed`) %>% 
-      summarize(`Deaths Reported` = sum(`Maximum Total Killed`))
+      select(`Maximum Total Killed`,`Minimum Total Killed`) %>% 
+      summarize(DeathMax = sum(`Maximum Total Killed`),
+                DeathMin = sum(`Minimum Total Killed`))
     
-    valueBox(tags$p(comma(total.death$`Deaths Reported`), style = "font-size: 100%; color: white;"),
+    valueBox(tags$p(paste(comma(total.death$DeathMin),"-",comma(total.death$DeathMax)), 
+                    style = "font-size: 100%; color: white;"),
              subtitle = "Total Death",
              color = "teal", 
              icon = icon("hospital"))
   })
+  
+  # Afghanistan Leaflet Map
+  
+  output$leaflet_a <- renderLeaflet({
+    m.a <- leaflet(afghan_sf) %>% 
+      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addPolygons(fillColor = ~factpal.a(Intensity),
+                  weight = 1,
+                  opacity = 1,
+                  color = "#DBEBC0",
+                  dashArray = "3",
+                  fillOpacity = 0.5,
+                  label = afghan_sf$NAME_1,
+                  popup = popup.cont.a) %>% 
+      addLegend("bottomright", 
+                values = ~Intensity,
+                colors =c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), 
+                labels= c("Very High", "High", "Medium", "Low", "None"),
+                title = "Strikes Intensity:",
+                labFormat = labelFormat(digits = 2),
+                opacity = 1)
+    
+    m.a
+  })
+  
+  # Pakistan Leaflet Map
+  
+  output$leaflet_p <- renderLeaflet({
+    m.p <- leaflet(pakistan_sf)
+    pakistan_map <- m.p %>% 
+      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addPolygons(fillColor = ~factpal.p(Intensity),
+                  weight = 1,
+                  opacity = 1,
+                  color = "#DBEBC0",
+                  dashArray = "3",
+                  fillOpacity = 0.5,
+                  label = pakistan_sf$NAME_1,
+                  popup = popup.cont.p) %>% 
+      addLegend("bottomright", 
+                values = ~Intensity,
+                colors =c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), 
+                labels= c("Very High", "High", "Medium", "Low", "None"),
+                title = "Strikes Intensity:",
+                labFormat = labelFormat(digits = 2),
+                opacity = 1)
+    
+    pakistan_map
+  })
+  
+  # Somalia Leaflet Map
+  
+  output$leaflet_s <- renderLeaflet({
+    m.s <- leaflet(somalia_sf)
+    somalia_map <- m.s %>% 
+      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addPolygons(fillColor = ~factpal.s(Intensity),
+                  weight = 1,
+                  opacity = 1,
+                  color = "#DBEBC0",
+                  dashArray = "3",
+                  fillOpacity = 0.5,
+                  label = somalia_sf$NAME_1,
+                  popup = popup.cont.s) %>% 
+      addLegend("bottomright", 
+                values = ~Intensity,
+                colors =c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), 
+                labels= c("Very High", "High", "Medium", "Low", "None"),
+                title = "Strikes Intensity:",
+                labFormat = labelFormat(digits = 2),
+                opacity = 1)
+    
+    somalia_map
+  })
+  
+  # Yemen Leaflet Map
+  
+  output$leaflet_y <- renderLeaflet({
+    m.y <- leaflet(yemen_sf)
+    yemen_map <- m.y %>% 
+      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addPolygons(fillColor = ~factpal.y(Intensity),
+                  weight = 1,
+                  opacity = 1,
+                  color = "#DBEBC0",
+                  dashArray = "3",
+                  fillOpacity = 0.5,
+                  label = yemen_sf$NAME_1,
+                  popup = popup.cont.y) %>% 
+      addLegend("bottomright", 
+                values = ~Intensity,
+                colors =c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), 
+                labels= c("Very High", "High", "Medium", "Low", "None"),
+                title = "Strikes Intensity:",
+                labFormat = labelFormat(digits = 2),
+                opacity = 1)
+    
+    yemen_map
+  })
+  
+  # Dataset
   
   output$data1 <- DT::renderDataTable(drone, options = list(scrollX = T))
 }
