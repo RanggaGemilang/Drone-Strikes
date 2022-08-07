@@ -79,11 +79,9 @@ body <- dashboardBody(
   
                                  /* active selected tab in the sidebarmenu */
                                  .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
-                                 background-image: url("usa2.png") !important;
-                                 background-size: cover !important;
-                                 background-color: black;
-                                 border-left-color:black;
-                                 color: white;
+                                 background-color: #E3D4CD;
+                                 border-left-color:#E3D4CD;
+                                 color: #5A5981;
                                  font-family: "Georgia";
                                  font-style: italic;
                                  }
@@ -99,9 +97,9 @@ body <- dashboardBody(
   
                                  /* other links in the sidebarmenu when hovered */
                                  .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                                 background-color: black;
-                                 border-left-color:black;
-                                 color: white;
+                                 background-color: #E3D4CD;
+                                 border-left-color:#E3D4CD;
+                                 color: #A6655F;
                                  font-family: "Georgia";
                                  font-style: italic;
                                  }
@@ -151,6 +149,12 @@ body <- dashboardBody(
                                  border-top-color:#E8E1DB;
                                  color: #A6655F;
                                  box-shadow: none;
+                                 }
+                                 
+                                 .small-box.bg-black { 
+                                 background-color: #5A5981 !important;
+                                 color: white !important; 
+                                 
                                  }
                                  
                                  .small-box.bg-navy { 

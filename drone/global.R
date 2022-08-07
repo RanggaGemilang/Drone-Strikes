@@ -499,7 +499,7 @@ yemen_sf <- yemeni %>% sf::st_as_sf()
 #Set the Aesthetics
 afghan_sf$Intensity <- as.factor(afghan_sf$Intensity)
 afghan_sf$Intensity <- factor(afghan_sf$Intensity,levels = c("Very High", "High", "Medium", "Low", "None"))
-factpal.a <- colorFactor(c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), afghan_sf$Intensity)
+factpal.a <- colorFactor(c("#A6655F", "#FABF78", "#F5DB9E", "#C3B299","#5A5981"), afghan_sf$Intensity)
 
 popup.cont.a  <- paste("<h4><b>", afghan_sf$NAME_1, "</b></h4>", 
                        "Intensity: ", afghan_sf$Intensity, "<br>", 
@@ -509,7 +509,7 @@ popup.cont.a  <- paste("<h4><b>", afghan_sf$NAME_1, "</b></h4>",
 
 pakistan_sf$Intensity <- as.factor(pakistan_sf$Intensity)
 pakistan_sf$Intensity <- factor(pakistan_sf$Intensity,levels = c("Very High", "High", "Medium", "Low", "None"))
-factpal.p <- colorFactor(c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), pakistan_sf$Intensity)
+factpal.p <- colorFactor(c("#A6655F", "#FABF78", "#F5DB9E", "#C3B299","#5A5981"), pakistan_sf$Intensity)
 
 popup.cont.p  <- paste("<h4><b>", pakistan_sf$NAME_1, "</b></h4>", 
                        "Intensity: ", pakistan_sf$Intensity, "<br>", 
@@ -519,7 +519,7 @@ popup.cont.p  <- paste("<h4><b>", pakistan_sf$NAME_1, "</b></h4>",
 
 somalia_sf$Intensity <- as.factor(somalia_sf$Intensity)
 somalia_sf$Intensity <- factor(somalia_sf$Intensity,levels = c("Very High", "High", "Medium", "Low", "None"))
-factpal.s <- colorFactor(c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), somalia_sf$Intensity)
+factpal.s <- colorFactor(c("#A6655F", "#FABF78", "#F5DB9E", "#C3B299","#5A5981"), somalia_sf$Intensity)
 
 popup.cont.s  <- paste("<h4><b>", somalia_sf$NAME_1, "</b></h4>", 
                        "Intensity: ", somalia_sf$Intensity, "<br>", 
@@ -529,7 +529,7 @@ popup.cont.s  <- paste("<h4><b>", somalia_sf$NAME_1, "</b></h4>",
 
 yemen_sf$Intensity <- as.factor(yemen_sf$Intensity)
 yemen_sf$Intensity <- factor(yemen_sf$Intensity,levels = c("Very High", "High", "Medium", "Low", "None"))
-factpal.y <- colorFactor(c("#523249", "#A6655F", "#FABF78", "#F5DB9E", "#C3B299"), yemen_sf$Intensity)
+factpal.y <- colorFactor(c("#A6655F", "#FABF78", "#F5DB9E", "#C3B299","#5A5981"), yemen_sf$Intensity)
 
 popup.cont.y  <- paste("<h4><b>", yemen_sf$NAME_1, "</b></h4>", 
                        "Intensity: ", yemen_sf$Intensity, "<br>", 
