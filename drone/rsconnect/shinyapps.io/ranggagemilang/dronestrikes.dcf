@@ -5,9 +5,9 @@ account: ranggagemilang
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6738755
-bundleId: 6177340
+bundleId: 6178335
 url: https://ranggagemilang.shinyapps.io/dronestrikes/
-when: 1659907679.09362
-lastSyncTime: 1659907679.09363
+when: 1659935568.07728
+lastSyncTime: 1659935568.0773
 asMultiple: FALSE
 asStatic: FALSE

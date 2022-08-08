@@ -213,10 +213,6 @@ body <- dashboardBody(
                                  color:#A6655F}
                                  
                                  
-                                 .leaflet-container { 
-                                 background: black; 
-                                 
-                                 }
   
                                '))),
   
@@ -368,16 +364,16 @@ body <- dashboardBody(
                id = "tabset1",
                side = "left",
                tabPanel(tags$b("Afghanistan"), 
-                        leafletOutput("leaflet_a")
+                        leafletOutput("leaflet_a", height = 560)
                ),
                tabPanel(tags$b("Pakistan"), 
-                        leafletOutput("leaflet_p")
+                        leafletOutput("leaflet_p", height = 560)
                ),
                tabPanel(tags$b("Somalia"), 
-                        leafletOutput("leaflet_s")
+                        leafletOutput("leaflet_s", height = 560)
                ),
                tabPanel(tags$b("Yemen"), 
-                        leafletOutput("leaflet_y")
+                        leafletOutput("leaflet_y", height = 560)
                )
         )
       )),

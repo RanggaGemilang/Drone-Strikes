@@ -234,13 +234,13 @@ server <- function(input, output) {
   
   output$leaflet_a <- renderLeaflet({
     m.a <- leaflet(afghan_sf) %>% 
-      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addProviderTiles(providers$Stamen.Terrain) %>% 
       addPolygons(fillColor = ~factpal.a(Intensity),
                   weight = 1,
                   opacity = 1,
                   color = "black",
                   dashArray = "3",
-                  fillOpacity = 0.5,
+                  fillOpacity = 0.9,
                   label = afghan_sf$NAME_1,
                   popup = popup.cont.a) %>% 
       addLegend("bottomright", 
@@ -259,13 +259,13 @@ server <- function(input, output) {
   output$leaflet_p <- renderLeaflet({
     m.p <- leaflet(pakistan_sf)
     pakistan_map <- m.p %>% 
-      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addProviderTiles(providers$Stamen.Terrain) %>% 
       addPolygons(fillColor = ~factpal.p(Intensity),
                   weight = 1,
                   opacity = 1,
                   color = "black",
                   dashArray = "3",
-                  fillOpacity = 0.5,
+                  fillOpacity = 0.9,
                   label = pakistan_sf$NAME_1,
                   popup = popup.cont.p) %>% 
       addLegend("bottomright", 
@@ -284,13 +284,13 @@ server <- function(input, output) {
   output$leaflet_s <- renderLeaflet({
     m.s <- leaflet(somalia_sf)
     somalia_map <- m.s %>% 
-      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addProviderTiles(providers$Stamen.Terrain) %>% 
       addPolygons(fillColor = ~factpal.s(Intensity),
                   weight = 1,
                   opacity = 1,
                   color = "black",
                   dashArray = "3",
-                  fillOpacity = 0.5,
+                  fillOpacity = 0.9,
                   label = somalia_sf$NAME_1,
                   popup = popup.cont.s) %>% 
       addLegend("bottomright", 
@@ -309,13 +309,13 @@ server <- function(input, output) {
   output$leaflet_y <- renderLeaflet({
     m.y <- leaflet(yemen_sf)
     yemen_map <- m.y %>% 
-      addProviderTiles(providers$CartoDB.DarkMatter) %>% 
+      addProviderTiles(providers$Stamen.Terrain) %>% 
       addPolygons(fillColor = ~factpal.y(Intensity),
                   weight = 1,
                   opacity = 1,
                   color = "black",
                   dashArray = "3",
-                  fillOpacity = 0.5,
+                  fillOpacity = 0.9,
                   label = yemen_sf$NAME_1,
                   popup = popup.cont.y) %>% 
       addLegend("bottomright", 
