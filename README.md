@@ -7,4 +7,5 @@ For the original dataset, you can download it from this [link](https://dronewars
 
 # References
 [Ecological Footprint](https://github.com/NabiilahArdini/Eco-Status)
-[Superstore Sales Dashboard](https://github.com/NabiilahArdini/Eco-Status)
+
+[Superstore Sales Dashboard](https://rudiharyanto.shinyapps.io/Superstore-Sales/)
